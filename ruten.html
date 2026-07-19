@@ -1,0 +1,1611 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ruten</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F4F6F8; --card:#FFFFFF; --card-alt:#F1F4F8; --border:#E3E8EE;
+    --text:#1F2937; --text-soft:#6B7280;
+    --blue:#2563EB; --green:#16A34A; --red:#DC2626; --orange:#B45309;
+    --radius:16px;
+  }
+  :root.dark{
+    --bg:#0b0f14; --card:#141a21; --card-alt:#1b232c; --border:rgba(255,255,255,0.08);
+    --text:#e6edf3; --text-soft:#8b98a5;
+    --blue:#5aa9ff; --green:#3ddc84; --red:#ff6b6b; --orange:#ffb454;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent;}
+  h1,.statnum,.bookbtn,.tab,.partnerbtn,.modetoggle button,.bname{font-family:"Space Grotesk",-apple-system,sans-serif;}
+  h1{margin:0;font-size:20px;font-weight:700;display:flex;align-items:center;gap:8px;color:var(--text);}
+  header{padding:18px 16px 12px;position:sticky;top:0;background:var(--bg);z-index:5;}
+  .headerrow{display:flex;justify-content:space-between;align-items:center;}
+  .linkbtn{background:none;border:none;color:var(--blue);font-size:12.5px;font-weight:600;}
+  .tabs{display:flex;gap:6px;margin-top:14px;background:var(--card);padding:4px;border-radius:12px;box-shadow:0 1px 2px rgba(16,24,40,0.05);}
+  .tab{flex:1;text-align:center;padding:9px 4px;border-radius:9px;font-size:12.5px;font-weight:600;color:var(--text-soft);white-space:nowrap;}
+  .tab.active{background:var(--blue);color:#fff;}
+  .view{padding:18px 16px;padding-bottom:80px;}
+  .hidden{display:none !important;}
+
+  .section{margin-bottom:26px;}
+  .section h2{font-size:12.5px;margin:0 0 14px;color:var(--text-soft);text-transform:uppercase;letter-spacing:.06em;font-weight:700;}
+  .section-hint{font-size:12px;color:var(--text-soft);margin:-8px 0 14px;line-height:1.5;}
+
+  details.settings-group{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:4px 16px;margin-bottom:10px;}
+  details.settings-group summary{padding:14px 0;font-weight:700;font-size:13.5px;color:var(--text);cursor:pointer;list-style:none;}
+  details.settings-group summary::-webkit-details-marker{display:none;}
+  details.settings-group summary::after{content:'▾';float:right;color:var(--text-soft);}
+  details.settings-group[open] summary{border-bottom:1px solid var(--border);margin-bottom:14px;}
+  details.settings-group .inner{padding-bottom:14px;}
+
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:13px;color:var(--text-soft);margin-bottom:6px;font-weight:600;}
+  .field input, .field select, .field textarea{
+    width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:11px;
+    font-size:16px;background:var(--card);color:var(--text);font-family:inherit;
+  }
+  .field input::placeholder, .field textarea::placeholder{color:var(--text-soft);opacity:0.8;}
+  .field input:focus, .field select:focus, .field textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.15);}
+  .field textarea{resize:vertical;min-height:90px;}
+  .checkbox-label{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text);font-weight:500;}
+  .checkbox-label input{width:auto;}
+  .row2{display:flex;gap:10px;}
+  .row2 .field{flex:1;}
+  .row3{display:flex;gap:8px;}
+  .row3 .field{flex:1;}
+
+  .partnerbtns{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px;}
+  .partnerbtn{
+    padding:10px 16px;border-radius:999px;border:1px solid var(--border);background:var(--card);
+    color:var(--text-soft);font-weight:600;font-size:13.5px;
+  }
+  .partnerbtn.active{border-color:var(--blue);color:var(--blue);background:rgba(37,99,235,0.10);}
+  .partnerbtn.employee{border-style:dashed;}
+
+  .modetoggle{display:flex;gap:8px;margin-bottom:16px;}
+  .modetoggle button{
+    flex:1;height:44px;border-radius:11px;border:1px solid var(--border);background:var(--card);
+    color:var(--text-soft);font-weight:600;font-size:13.5px;
+  }
+  .modetoggle button.active{border-color:var(--blue);color:var(--blue);background:rgba(37,99,235,0.10);}
+
+  .cal-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+  .cal-nav button{background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:9px;width:36px;height:36px;font-size:16px;}
+  .cal-nav .caplabel{font-weight:600;font-size:14px;text-transform:capitalize;color:var(--text-soft);}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:14px;}
+  .cal-weekday{text-align:center;font-size:11px;color:var(--text-soft);padding:4px 0;}
+  .cal-cell{text-align:center;padding:9px 0;border-radius:9px;font-size:13px;background:var(--card);border:1px solid var(--border);color:var(--text);}
+  .cal-cell.empty{background:transparent;border:none;}
+  .cal-cell.selected{background:var(--blue);color:#fff;font-weight:700;border-color:var(--blue);}
+  .confirmtext{font-size:13.5px;color:var(--green);font-weight:600;margin-top:8px;}
+  .preview-text{font-size:13px;color:var(--orange);margin-top:10px;}
+
+  .bookbtn{
+    width:100%;height:54px;border:none;border-radius:14px;background:var(--blue);color:#fff;
+    font-size:16px;font-weight:700;margin-top:4px;box-shadow:0 4px 10px rgba(37,99,235,0.25);
+  }
+  .bookbtn:active{opacity:0.85;}
+
+  .searchbar{margin-bottom:16px;}
+  .searchbar input{width:100%;padding:12px 14px;border-radius:11px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:15px;}
+
+  .empty{text-align:center;color:var(--text-soft);padding:36px 16px;font-size:13.5px;line-height:1.6;}
+
+  .bcard{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:15px;margin-bottom:10px;box-shadow:0 1px 2px rgba(16,24,40,0.04);}
+  .bctop{display:flex;justify-content:space-between;align-items:center;gap:10px;}
+  .bctopleft{display:flex;align-items:center;gap:10px;}
+  .avatar{width:34px;height:34px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0;}
+  .bname{font-weight:700;font-size:15.5px;color:var(--text);}
+  .bprice{font-weight:700;font-size:14.5px;color:var(--green);white-space:nowrap;}
+  .bcstatus{display:flex;justify-content:space-between;align-items:center;margin-top:10px;gap:8px;}
+  .bcstatus .btnrow{display:flex;gap:8px;}
+  .badge{font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;}
+  .badge.active{background:rgba(37,99,235,0.10);color:var(--blue);}
+  .badge.sold{background:rgba(22,163,74,0.10);color:var(--green);}
+  .badge.cancelled{background:rgba(220,38,38,0.10);color:var(--red);}
+  .badge.overdue{background:rgba(180,83,9,0.14);color:var(--orange);}
+  .delbtn-solid{background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.3);color:var(--red);border-radius:9px;padding:7px 12px;font-size:12px;font-weight:700;}
+  .editbtn-solid{background:rgba(37,99,235,0.08);border:1px solid rgba(37,99,235,0.3);color:var(--blue);border-radius:9px;padding:7px 12px;font-size:12px;font-weight:700;}
+  .bcaddr{font-size:13.5px;color:var(--text);margin-top:8px;}
+  .bcsub, .bcwhen{font-size:12.5px;color:var(--text-soft);margin-top:4px;}
+  .note{font-size:12.5px;color:var(--text-soft);margin-top:8px;font-style:italic;}
+  .splitinfo{font-size:12.5px;color:var(--text-soft);margin-top:5px;}
+  .assignlabel{font-size:11px;color:var(--text-soft);margin-top:10px;margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.03em;}
+  .cardactions{display:flex;gap:8px;margin-top:12px;}
+  .qbtn{flex:1;padding:10px 0;border-radius:10px;border:1px solid var(--border);font-weight:700;font-size:13px;background:var(--card);color:var(--text);}
+  .qbtn.solgt{border-color:var(--green);color:var(--green);}
+  .qbtn.aflyst{border-color:var(--red);color:var(--red);}
+
+  .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .statcard{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:15px;box-shadow:0 1px 2px rgba(16,24,40,0.04);}
+  .statnum{font-size:20px;font-weight:700;color:var(--text);}
+  .statlabel{font-size:11.5px;color:var(--text-soft);margin-top:3px;}
+  .statcard.green .statnum{color:var(--green);}
+  .statcard.blue .statnum{color:var(--blue);}
+  .statcard.red .statnum{color:var(--red);}
+  .statcard.wide{grid-column:1 / -1;}
+
+  #områdeList{font-size:13.5px;line-height:2;color:var(--text);}
+
+  canvas{width:100%;display:block;border-radius:12px;}
+  .chart-summary{font-size:13px;color:var(--text-soft);margin-top:12px;text-align:center;}
+  .chart-summary strong{color:var(--text);}
+
+  .expense-row{display:flex;justify-content:space-between;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px;cursor:pointer;}
+  .expense-desc{font-size:14px;font-weight:600;color:var(--text);}
+  .expense-date{font-size:11.5px;color:var(--text-soft);margin-top:2px;}
+  .expense-right{display:flex;align-items:center;gap:10px;}
+  .expense-amount{color:var(--red);font-weight:700;font-size:13.5px;}
+  .add-expense-row{display:flex;gap:8px;margin-top:10px;}
+  .add-expense-row input{flex:1;}
+
+  .partner-row{display:flex;gap:8px;margin-bottom:8px;align-items:center;}
+  .partner-input{flex:1;}
+  .addrow{display:flex;gap:8px;}
+  .addrow input{flex:1;}
+  .addrow button{background:var(--blue);color:#fff;border:none;border-radius:11px;padding:0 18px;font-weight:700;}
+
+  .smallbtn{background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:11px;padding:12px 16px;font-weight:600;font-size:14px;width:100%;}
+  .themebtns{display:flex;gap:8px;}
+  .themebtns button{flex:1;height:44px;border-radius:11px;border:1px solid var(--border);background:var(--card);color:var(--text-soft);font-weight:600;font-size:13.5px;}
+  .themebtns button.active{border-color:var(--blue);color:var(--blue);background:rgba(37,99,235,0.10);}
+
+  .overlay{position:fixed;inset:0;background:rgba(15,23,42,0.5);display:flex;align-items:flex-end;z-index:30;}
+  .overlay.hidden{display:none;}
+  .modal{background:var(--card);width:100%;border-radius:20px 20px 0 0;padding:22px 20px;max-height:90vh;overflow-y:auto;}
+  .modal h2{font-size:17px;margin:0 0 16px;font-family:"Space Grotesk",sans-serif;color:var(--text);}
+  .modal p{font-size:13px;color:var(--text-soft);margin:14px 0 8px;}
+  .split-preview{background:var(--card-alt);border-radius:11px;padding:13px;font-size:13px;color:var(--text-soft);margin:14px 0;line-height:1.6;}
+  .modal-actions{display:flex;gap:10px;margin-top:16px;}
+  .modal-actions button{flex:1;height:48px;border-radius:11px;border:none;font-weight:700;font-size:14px;}
+  .btn-confirm{background:var(--green);color:#fff;}
+  .btn-cancel{background:var(--card-alt);color:var(--text);}
+
+  .summary-btn{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:15px;cursor:pointer;box-shadow:0 1px 2px rgba(16,24,40,0.04);}
+  .summary-btn .arrow{color:var(--text-soft);font-size:13px;}
+
+  .toast{
+    position:fixed;top:16px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;
+    padding:10px 18px;border-radius:999px;font-size:13px;font-weight:700;z-index:60;opacity:0;transition:opacity .25s;pointer-events:none;
+  }
+  .toast.show{opacity:1;}
+
+  /* gate */
+  #gateScreen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;}
+  #gateScreen h1{font-size:26px;margin-bottom:6px;}
+  #gateScreen p{color:var(--text-soft);margin-bottom:26px;font-size:14px;}
+  .gatebox{width:100%;max-width:340px;}
+  .gatebox .smallbtn{margin-top:10px;}
+
+  /* employee app */
+  .empbadge{background:rgba(37,99,235,0.10);color:var(--blue);font-size:12px;font-weight:700;padding:5px 12px;border-radius:999px;}
+</style>
+</head>
+<body>
+
+<div id="gateScreen">
+  <div class="gatebox">
+    <h1 id="gateTitle">🧹 Ruten</h1>
+    <p>Hvem er du?</p>
+    <button class="bookbtn" id="gateOwnerBtn">Jeg er ejer</button>
+    <button class="smallbtn" id="gateEmployeeToggle">Jeg er medarbejder</button>
+    <div id="gateEmployeeList" class="hidden" style="margin-top:14px;"></div>
+  </div>
+</div>
+
+<div class="overlay hidden" id="pinOverlay">
+  <div class="modal">
+    <h2>Indtast PIN</h2>
+    <div class="field"><input type="password" inputmode="numeric" id="pinInput" placeholder="PIN"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" id="pinCancelBtn">Annuller</button>
+      <button class="btn-confirm" id="pinConfirmBtn">Lås op</button>
+    </div>
+  </div>
+</div>
+
+<div id="ownerApp" class="hidden">
+<header>
+  <div class="headerrow">
+    <h1 id="ownerTitle">🧹 Ruten</h1>
+    <button class="linkbtn" id="ownerSwitchUserBtn">Skift bruger</button>
+  </div>
+  <div class="tabs">
+    <div class="tab active" id="tab_booking">Booking</div>
+    <div class="tab" id="tab_oversigt">Oversigt</div>
+    <div class="tab" id="tab_statistik">Statistik</div>
+    <div class="tab" id="tab_indstillinger">⚙️</div>
+  </div>
+</header>
+
+<div class="view" id="view_booking">
+  <div class="section">
+    <h2>Ny booking</h2>
+    <div class="field"><label id="lbl_navn">Navn</label><input type="text" id="b_navn"></div>
+    <div class="field"><label id="lbl_tlf">Telefon</label><input type="tel" id="b_tlf"></div>
+    <div class="field"><label id="lbl_adresse">Adresse</label><input type="text" id="b_adresse" placeholder="fx Hovedgaden 12, 2630 Taastrup"></div>
+    <div class="field"><label id="lbl_email">E-mail</label><input type="email" id="b_email"></div>
+    <div class="field"><label>Note (valgfrit)</label><input type="text" id="b_note"></div>
+    <div class="field">
+      <label id="lbl_pris">Pris (kr)</label>
+      <div class="partnerbtns" id="quickPriceChips"></div>
+      <input type="number" step="any" id="b_pris">
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Hvem fik dørsalget?</h2>
+    <div class="partnerbtns" id="dorsalgButtons"></div>
+  </div>
+
+  <div class="section">
+    <h2>Dato &amp; tid</h2>
+    <div class="modetoggle">
+      <button type="button" id="modeCalBtn" class="active">Vælg dato</button>
+      <button type="button" id="modeRecBtn">Gentagende</button>
+    </div>
+
+    <div class="field" id="timeWrap">
+      <label id="timeLabel">Tid</label>
+      <input type="time" id="b_time">
+    </div>
+
+    <div id="calendarSection">
+      <div class="cal-nav">
+        <button type="button" id="calPrev">‹</button>
+        <span class="caplabel" id="calLabel"></span>
+        <button type="button" id="calNext">›</button>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+      <div class="confirmtext" id="calConfirmText"></div>
+    </div>
+
+    <div id="recurringSection" class="hidden">
+      <div class="field">
+        <label>Gentag hver</label>
+        <select id="b_rec_freq">
+          <option value="dag">Dag</option>
+          <option value="uge" selected>Uge</option>
+          <option value="måned">Måned</option>
+        </select>
+      </div>
+      <div class="field"><label>Startdato</label><input type="date" id="b_rec_start"></div>
+      <div class="preview-text" id="recPreview"></div>
+    </div>
+  </div>
+
+  <button class="bookbtn" id="bookBtn">Book kunde</button>
+</div>
+
+<div class="view hidden" id="view_oversigt">
+  <div class="searchbar"><input type="text" id="oversigtSearch" placeholder="Søg navn, adresse, telefon, email..."></div>
+  <div id="oversigtList"></div>
+</div>
+
+<div class="view hidden" id="view_statistik">
+  <div class="section">
+    <h2>Overblik</h2>
+    <div class="stats-grid" id="statCards"></div>
+  </div>
+
+  <div class="section">
+    <h2>Udgifter</h2>
+    <div class="summary-btn" id="expensesSummaryBtn">
+      <div class="bctop"><span class="bname">Se alle udgifter</span><span class="arrow">→</span></div>
+      <div class="bcsub" id="expensesSummaryText"></div>
+    </div>
+    <div class="add-expense-row">
+      <input type="text" id="exp_desc" placeholder="Beskrivelse">
+      <input type="number" id="exp_amount" placeholder="Kr" step="any" style="max-width:90px;">
+    </div>
+    <div class="add-expense-row">
+      <input type="date" id="exp_date">
+    </div>
+    <div class="field" style="margin-top:10px;">
+      <label class="checkbox-label"><input type="checkbox" id="exp_is_wage"> Løn til medarbejder</label>
+    </div>
+    <div class="field hidden" id="exp_employee_wrap">
+      <select id="exp_employee_select"></select>
+    </div>
+    <button type="button" class="bookbtn" id="addExpenseBtn" style="height:46px;">Tilføj udgift</button>
+    <button type="button" class="smallbtn hidden" id="cancelEditExpenseBtn" style="margin-top:8px;">Annuller redigering</button>
+  </div>
+
+  <div class="section">
+    <h2>Bedste område</h2>
+    <div class="field">
+      <select id="områdeMode">
+        <option value="omsætning">Mest omsætning</option>
+        <option value="kunder">Flest kunder</option>
+      </select>
+    </div>
+    <div id="områdeList"></div>
+  </div>
+
+  <div class="section">
+    <h2>Indtjening over tid</h2>
+    <div class="field">
+      <select id="chartPeriod">
+        <option value="week">Denne uge</option>
+        <option value="month" selected>Denne måned</option>
+        <option value="year">Dette år</option>
+        <option value="all">All time</option>
+      </select>
+    </div>
+    <canvas id="earningsCanvas" height="200"></canvas>
+    <div class="chart-summary" id="chartSummary"></div>
+  </div>
+
+  <div class="section">
+    <h2>Kundehistorik</h2>
+    <div class="searchbar"><input type="text" id="historikSearch" placeholder="Søg navn, adresse, telefon, email, dato..."></div>
+    <div id="historikResults"></div>
+  </div>
+</div>
+
+<div class="view hidden" id="view_indstillinger">
+  <div class="section">
+    <h2>Udseende</h2>
+    <div class="themebtns">
+      <button type="button" id="themeLightBtn">Lys</button>
+      <button type="button" id="themeDarkBtn">Mørk</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Ejere / partnere</h2>
+    <div class="section-hint">Dem der deler overskuddet af virksomheden.</div>
+    <div id="partnersList"></div>
+    <div class="addrow"><input type="text" id="newPartnerInput" placeholder="Nyt navn"><button type="button" id="addPartnerBtn">+</button></div>
+  </div>
+
+  <div class="section">
+    <h2>Medarbejdere</h2>
+    <div class="section-hint">Folk I ansætter til at hjælpe. De er ikke med i overskudsdelingen, betal dem via Udgifter.</div>
+    <div id="employeesList"></div>
+    <div class="addrow"><input type="text" id="newEmployeeInput" placeholder="Nyt navn"><button type="button" id="addEmployeeBtn">+</button></div>
+  </div>
+
+  <div class="section">
+    <h2>Flere indstillinger</h2>
+
+    <details class="settings-group">
+      <summary>Firmanavn</summary>
+      <div class="inner">
+        <div class="field"><label>Vises i toppen af appen</label><input type="text" id="businessNameInput" placeholder="fx Glasklar"></div>
+      </div>
+    </details>
+
+    <details class="settings-group">
+      <summary>Kundefelter</summary>
+      <div class="inner">
+        <div class="section-hint">Vælg hvilke felter der skal være påkrævet ved booking.</div>
+        <div class="field"><label class="checkbox-label"><input type="checkbox" id="req_tlf"> Telefon påkrævet</label></div>
+        <div class="field"><label class="checkbox-label"><input type="checkbox" id="req_adresse"> Adresse påkrævet</label></div>
+        <div class="field"><label class="checkbox-label"><input type="checkbox" id="req_email"> Email påkrævet</label></div>
+        <div class="field"><label class="checkbox-label"><input type="checkbox" id="req_pris"> Pris påkrævet</label></div>
+      </div>
+    </details>
+
+    <details class="settings-group">
+      <summary>Hurtige priser</summary>
+      <div class="inner">
+        <div class="section-hint">Vises som genveje ved prisfeltet.</div>
+        <div class="row3">
+          <div class="field"><input type="number" id="qp1" placeholder="249"></div>
+          <div class="field"><input type="number" id="qp2" placeholder="349"></div>
+          <div class="field"><input type="number" id="qp3" placeholder="449"></div>
+        </div>
+      </div>
+    </details>
+
+    <details class="settings-group">
+      <summary>Når én partner klarer begge dele</summary>
+      <div class="inner">
+        <div class="section-hint">Bruges når samme partner både fik dørsalget og vaskede alene.</div>
+        <div class="row2">
+          <div class="field"><label>Den aktive får (%)</label><input type="number" id="splitPct1Input" min="0" max="100"></div>
+          <div class="field"><label>Den anden får (%)</label><input type="number" id="splitPct2Input" min="0" max="100"></div>
+        </div>
+      </div>
+    </details>
+
+    <details class="settings-group">
+      <summary>Solo-bonus ved delt opgave</summary>
+      <div class="inner">
+        <div class="section-hint">Hvis én partner klarede dørsalg eller vask alene, mens den anden del blev lavet sammen, får solo-personen denne bonus oveni.</div>
+        <div class="field"><label>Bonus (%)</label><input type="number" id="soloBonusInput" min="0" max="100"></div>
+      </div>
+    </details>
+
+    <details class="settings-group">
+      <summary>Fremtidsplaner</summary>
+      <div class="inner">
+        <div class="section-hint">Kun ejere ser dette.</div>
+        <div class="field"><textarea id="futurePlansInput" placeholder="Ideer og planer til senere..."></textarea></div>
+      </div>
+    </details>
+
+    <details class="settings-group">
+      <summary>Sikkerhed</summary>
+      <div class="inner">
+        <div class="section-hint">PIN-koden låser ejer-visningen op. Standard er 1234, skift den før I deler linket.</div>
+        <div class="field"><label>Ejer-PIN</label><input type="text" inputmode="numeric" id="ownerPinInput"></div>
+      </div>
+    </details>
+
+    <details class="settings-group">
+      <summary>Backup</summary>
+      <div class="inner">
+        <button type="button" class="smallbtn" id="backupBtn" style="margin-bottom:10px;">Download backup</button>
+        <label class="smallbtn" style="display:block;text-align:center;">
+          Gendan backup
+          <input type="file" id="restoreInput" accept="application/json" style="display:none;">
+        </label>
+      </div>
+    </details>
+  </div>
+</div>
+</div>
+
+<div id="employeeApp" class="hidden">
+<header>
+  <div class="headerrow">
+    <h1 id="empTitle">🧹 Ruten</h1>
+    <button class="linkbtn" id="empSwitchUserBtn">Skift bruger</button>
+  </div>
+  <p style="margin:8px 0 0;"><span class="empbadge" id="empBadge"></span></p>
+  <div class="tabs">
+    <div class="tab active" id="emp_tab_schedule">Mit skema</div>
+    <div class="tab" id="emp_tab_earnings">Min indtjening</div>
+  </div>
+</header>
+<div class="view" id="emp_view_schedule">
+  <div id="empScheduleList"></div>
+</div>
+<div class="view hidden" id="emp_view_earnings">
+  <div class="statcard green wide" style="margin-bottom:16px;">
+    <div class="statnum" id="empEarningsTotal">0 kr</div>
+    <div class="statlabel">Din samlede løn</div>
+  </div>
+  <div id="empEarningsList"></div>
+</div>
+</div>
+
+<div class="overlay hidden" id="solgtOverlay">
+  <div class="modal">
+    <h2>Marker som solgt</h2>
+    <p>Hvem fik dørsalget?</p>
+    <div class="partnerbtns" id="modalDorsalgButtons"></div>
+    <p>Hvem vaskede vinduerne?</p>
+    <div class="partnerbtns" id="modalVaskButtons"></div>
+    <div class="split-preview" id="splitPreview">Vælg begge for at se fordelingen.</div>
+    <div class="field hidden" id="employeeWageWrap">
+      <label>Betaling til medarbejder (kr, valgfrit)</label>
+      <input type="number" step="any" id="employeeWageInput">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" id="solgtCancelBtn">Annuller</button>
+      <button class="btn-confirm" id="solgtConfirmBtn">Bekræft</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay hidden" id="expensesOverlay">
+  <div class="modal">
+    <h2>Alle udgifter</h2>
+    <div class="section-hint">Tryk på en udgift for at redigere den.</div>
+    <div id="allExpensesList"></div>
+    <div class="modal-actions"><button class="btn-cancel" id="closeExpensesBtn" style="flex:1;">Luk</button></div>
+  </div>
+</div>
+
+<div class="overlay hidden" id="editBookingOverlay">
+  <div class="modal">
+    <h2>Rediger booking</h2>
+    <div class="field"><label>Navn</label><input type="text" id="edit_navn"></div>
+    <div class="field"><label>Telefon</label><input type="tel" id="edit_tlf"></div>
+    <div class="field"><label>Adresse</label><input type="text" id="edit_adresse"></div>
+    <div class="field"><label>E-mail</label><input type="email" id="edit_email"></div>
+    <div class="field"><label>Note</label><input type="text" id="edit_note"></div>
+    <div class="field"><label>Pris (kr)</label><input type="number" step="any" id="edit_pris"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" id="editBookingCancelBtn">Annuller</button>
+      <button class="btn-confirm" id="editBookingSaveBtn">Gem</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay hidden" id="confirmOverlay">
+  <div class="modal">
+    <p id="confirmMessage" style="font-size:15px;color:var(--text);margin:0 0 14px;"></p>
+    <div class="field hidden" id="confirmNoteWrap">
+      <label>Note (valgfrit)</label>
+      <input type="text" id="confirmNoteInput" placeholder="fx årsag til aflysning">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" id="confirmNoBtn">Annuller</button>
+      <button class="btn-confirm" id="confirmYesBtn">Bekræft</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let bookings = [];
+let expenses = [];
+let settings = {
+  partners: ['Dig','Ven'], employees: [],
+  splitPct1: 70, splitPct2: 30, soloBonusPct: 20,
+  theme: 'light', businessName: '', futurePlans: '',
+  ownerPin: '1234',
+  requiredFields: { tlf:true, adresse:true, email:false, pris:true },
+  quickPrices: []
+};
+
+let currentMode = null; // 'owner' | 'employee'
+let currentEmployeeName = null;
+let editingExpenseId = null;
+let editingBookingId = null;
+
+let selectedDorsalg = null;
+let dateMode = 'calendar';
+let calSelectedDate = null;
+let calViewDate = new Date();
+
+let searchQueryOversigt = '';
+let searchQueryHistorik = '';
+let resolvingId = null;
+let modalDorsalg = null;
+let modalVask = null;
+let chartDayData = [];
+
+const toastEl = document.getElementById('toast');
+function toast(msg){
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  setTimeout(()=>toastEl.classList.remove('show'), 1900);
+}
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str || '';
+  return d.innerHTML;
+}
+function fmtKr(n){ return Math.round(Number(n)||0).toLocaleString('da-DK') + ' kr'; }
+function capitalizeWords(str){
+  return str.split(' ').map(w => w.length ? w.charAt(0).toUpperCase()+w.slice(1) : w).join(' ');
+}
+function fmtDateShort(iso){
+  const d = new Date(iso);
+  return String(d.getDate()).padStart(2,'0')+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+d.getFullYear();
+}
+function fmtDateTime(iso, noTime){
+  if(noTime) return fmtDateShort(iso);
+  const d = new Date(iso);
+  const hh = String(d.getHours()).padStart(2,'0'), mm = String(d.getMinutes()).padStart(2,'0');
+  return fmtDateShort(iso) + ' kl. ' + hh + ':' + mm;
+}
+function isOverdue(b){ return b.status === 'active' && new Date(b.dato).getTime() <= Date.now(); }
+function extractStreetName(addr){
+  if(!addr) return 'Ukendt';
+  const m = addr.trim().match(/^([^\d,]+)/);
+  let name = (m ? m[1] : addr).trim().toLowerCase();
+  if(!name) return 'Ukendt';
+  return name.charAt(0).toUpperCase() + name.slice(1);
+}
+function appDisplayName(){ return settings.businessName ? settings.businessName : '🧹 Ruten'; }
+
+/* ---------- Custom confirm modal ---------- */
+function showConfirm({message, withNote=false}){
+  return new Promise(resolve=>{
+    document.getElementById('confirmMessage').textContent = message;
+    const noteWrap = document.getElementById('confirmNoteWrap');
+    noteWrap.classList.toggle('hidden', !withNote);
+    document.getElementById('confirmNoteInput').value = '';
+    document.getElementById('confirmOverlay').classList.remove('hidden');
+    const yesBtn = document.getElementById('confirmYesBtn');
+    const noBtn = document.getElementById('confirmNoBtn');
+    function cleanup(){
+      yesBtn.removeEventListener('click', onYes);
+      noBtn.removeEventListener('click', onNo);
+      document.getElementById('confirmOverlay').classList.add('hidden');
+    }
+    function onYes(){
+      const note = withNote ? document.getElementById('confirmNoteInput').value.trim() : null;
+      cleanup(); resolve({confirmed:true, note});
+    }
+    function onNo(){ cleanup(); resolve({confirmed:false, note:null}); }
+    yesBtn.addEventListener('click', onYes);
+    noBtn.addEventListener('click', onNo);
+  });
+}
+
+/* ---------- Data load/save ---------- */
+async function loadData(){
+  try{
+    const r = await window.storage.get('bookings', true);
+    bookings = r && r.value ? JSON.parse(r.value) : [];
+  }catch(e){ bookings = []; }
+  try{
+    const r2 = await window.storage.get('settings', true);
+    if(r2 && r2.value){ settings = Object.assign({}, settings, JSON.parse(r2.value)); }
+  }catch(e){ /* keep defaults */ }
+  if(!settings.employees) settings.employees = [];
+  if(!settings.requiredFields) settings.requiredFields = { tlf:true, adresse:true, email:false, pris:true };
+  if(!settings.quickPrices) settings.quickPrices = [];
+  try{
+    const r3 = await window.storage.get('expenses', true);
+    expenses = r3 && r3.value ? JSON.parse(r3.value) : [];
+  }catch(e){ expenses = []; }
+  applyTheme(settings.theme||'light');
+}
+async function saveBookings(){
+  try{ const res = await window.storage.set('bookings', JSON.stringify(bookings), true); if(!res){ toast('Kunne ikke gemme'); } }catch(e){ toast('Gem fejlede'); }
+}
+async function saveSettings(){
+  try{ await window.storage.set('settings', JSON.stringify(settings), true); }catch(e){ toast('Kunne ikke gemme indstillinger'); }
+}
+async function saveExpenses(){
+  try{ await window.storage.set('expenses', JSON.stringify(expenses), true); }catch(e){ toast('Kunne ikke gemme udgift'); }
+}
+
+/* ---------- Theme ---------- */
+function applyTheme(mode){
+  document.documentElement.classList.toggle('dark', mode==='dark');
+  document.getElementById('themeLightBtn').classList.toggle('active', mode!=='dark');
+  document.getElementById('themeDarkBtn').classList.toggle('active', mode==='dark');
+}
+function themeColors(){
+  return document.documentElement.classList.contains('dark')
+    ? {green:'#3ddc84', red:'#ff6b6b', orange:'#ffb454', fill:'rgba(90,169,255,0.14)'}
+    : {green:'#16A34A', red:'#DC2626', orange:'#B45309', fill:'rgba(37,99,235,0.08)'};
+}
+document.getElementById('themeLightBtn').addEventListener('click', async ()=>{ settings.theme='light'; applyTheme('light'); await saveSettings(); renderChart(); });
+document.getElementById('themeDarkBtn').addEventListener('click', async ()=>{ settings.theme='dark'; applyTheme('dark'); await saveSettings(); renderChart(); });
+
+/* ---------- Gate / mode switching ---------- */
+function showGate(){
+  currentMode = null; currentEmployeeName = null;
+  document.getElementById('gateScreen').classList.remove('hidden');
+  document.getElementById('ownerApp').classList.add('hidden');
+  document.getElementById('employeeApp').classList.add('hidden');
+  document.getElementById('gateEmployeeList').classList.add('hidden');
+  document.getElementById('gateTitle').textContent = appDisplayName();
+}
+function enterOwnerMode(){
+  currentMode = 'owner';
+  document.getElementById('gateScreen').classList.add('hidden');
+  document.getElementById('employeeApp').classList.add('hidden');
+  document.getElementById('ownerApp').classList.remove('hidden');
+  document.getElementById('ownerTitle').textContent = appDisplayName();
+  renderAllTabs();
+  renderChart();
+}
+function enterEmployeeMode(name){
+  currentMode = 'employee'; currentEmployeeName = name;
+  document.getElementById('gateScreen').classList.add('hidden');
+  document.getElementById('ownerApp').classList.add('hidden');
+  document.getElementById('employeeApp').classList.remove('hidden');
+  document.getElementById('empTitle').textContent = appDisplayName();
+  document.getElementById('empBadge').textContent = name;
+  renderEmployeeApp();
+}
+document.getElementById('gateOwnerBtn').addEventListener('click', ()=>{
+  document.getElementById('pinInput').value='';
+  document.getElementById('pinOverlay').classList.remove('hidden');
+});
+document.getElementById('pinCancelBtn').addEventListener('click', ()=> document.getElementById('pinOverlay').classList.add('hidden'));
+document.getElementById('pinConfirmBtn').addEventListener('click', ()=>{
+  const val = document.getElementById('pinInput').value;
+  if(val === (settings.ownerPin||'1234')){
+    document.getElementById('pinOverlay').classList.add('hidden');
+    enterOwnerMode();
+  }else{
+    toast('Forkert PIN');
+  }
+});
+document.getElementById('gateEmployeeToggle').addEventListener('click', ()=>{
+  const wrap = document.getElementById('gateEmployeeList');
+  if((settings.employees||[]).length===0){
+    toast('Ingen medarbejdere endnu, bed en ejer om at tilføje dig');
+    return;
+  }
+  wrap.innerHTML = settings.employees.map(n=>`<button type="button" class="smallbtn" data-emp="${escapeHtml(n)}" style="margin-bottom:8px;">${escapeHtml(n)}</button>`).join('');
+  wrap.classList.remove('hidden');
+  wrap.querySelectorAll('[data-emp]').forEach(btn=>{
+    btn.addEventListener('click', ()=> enterEmployeeMode(btn.getAttribute('data-emp')));
+  });
+});
+document.getElementById('ownerSwitchUserBtn').addEventListener('click', showGate);
+document.getElementById('empSwitchUserBtn').addEventListener('click', showGate);
+
+/* ---------- Required fields / labels ---------- */
+function updateFieldLabels(){
+  const rf = settings.requiredFields;
+  document.getElementById('lbl_tlf').textContent = 'Telefon' + (rf.tlf ? '' : ' (valgfrit)');
+  document.getElementById('lbl_adresse').textContent = 'Adresse' + (rf.adresse ? '' : ' (valgfrit)');
+  document.getElementById('lbl_email').textContent = 'E-mail' + (rf.email ? '' : ' (valgfrit)');
+  document.getElementById('lbl_pris').textContent = 'Pris (kr)' + (rf.pris ? '' : ' (valgfrit)');
+}
+
+/* ---------- Quick price chips ---------- */
+function renderQuickPriceChips(){
+  const wrap = document.getElementById('quickPriceChips');
+  const prices = (settings.quickPrices||[]).filter(p=>p>0);
+  if(prices.length===0){ wrap.innerHTML=''; return; }
+  wrap.innerHTML = prices.map(p=>`<button type="button" class="partnerbtn" data-qp="${p}">${fmtKr(p)}</button>`).join('');
+  wrap.querySelectorAll('[data-qp]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{ document.getElementById('b_pris').value = btn.getAttribute('data-qp'); });
+  });
+}
+
+/* ---------- Dørsalg partner buttons (owners only) ---------- */
+function renderDorsalgButtons(){
+  const wrap = document.getElementById('dorsalgButtons');
+  let html = '';
+  settings.partners.forEach(p=>{
+    html += `<button type="button" class="partnerbtn${selectedDorsalg===p?' active':''}" data-p="${escapeHtml(p)}">${escapeHtml(p)}</button>`;
+  });
+  html += `<button type="button" class="partnerbtn${selectedDorsalg==='Begge'?' active':''}" data-p="Begge">Begge</button>`;
+  wrap.innerHTML = html;
+  wrap.querySelectorAll('button').forEach(b=>{
+    b.addEventListener('click', ()=>{ selectedDorsalg = b.getAttribute('data-p'); renderDorsalgButtons(); });
+  });
+}
+
+/* ---------- Calendar (single date, booking form) ---------- */
+function renderBookingCalendar(){
+  const y = calViewDate.getFullYear(), m = calViewDate.getMonth();
+  document.getElementById('calLabel').textContent = calViewDate.toLocaleDateString('da-DK',{month:'long',year:'numeric'});
+  const firstOfMonth = new Date(y,m,1);
+  const offset = (firstOfMonth.getDay()+6)%7;
+  const daysInMonth = new Date(y,m+1,0).getDate();
+  let html = '';
+  ['Ma','Ti','On','To','Fr','Lø','Sø'].forEach(w=> html += `<div class="cal-weekday">${w}</div>`);
+  for(let i=0;i<offset;i++){ html += '<div class="cal-cell empty"></div>'; }
+  for(let day=1; day<=daysInMonth; day++){
+    const ds = y+'-'+String(m+1).padStart(2,'0')+'-'+String(day).padStart(2,'0');
+    const sel = ds===calSelectedDate ? ' selected' : '';
+    html += `<div class="cal-cell${sel}" data-date="${ds}">${day}</div>`;
+  }
+  document.getElementById('calGrid').innerHTML = html;
+  document.querySelectorAll('#calGrid .cal-cell[data-date]').forEach(c=>{
+    c.addEventListener('click', ()=>{
+      calSelectedDate = c.getAttribute('data-date');
+      renderBookingCalendar();
+      updateCalConfirm();
+    });
+  });
+}
+function updateCalConfirm(){
+  const el = document.getElementById('calConfirmText');
+  if(!calSelectedDate){ el.textContent=''; return; }
+  const t = document.getElementById('b_time').value;
+  el.textContent = t ? ('✅ ' + fmtDateShort(calSelectedDate+'T00:00:00') + ' kl. ' + t) : ('✅ ' + fmtDateShort(calSelectedDate+'T00:00:00'));
+}
+
+/* ---------- Recurring ---------- */
+function computeRecurringDates(freq, startDateStr, timeStr, count){
+  const hhmm = timeStr || '00:00';
+  const arr = [];
+  for(let i=0;i<count;i++){
+    const d = new Date(startDateStr+'T00:00:00');
+    if(freq==='dag') d.setDate(d.getDate()+i);
+    else if(freq==='uge') d.setDate(d.getDate()+i*7);
+    else if(freq==='måned') d.setMonth(d.getMonth()+i);
+    const y=d.getFullYear(), mo=String(d.getMonth()+1).padStart(2,'0'), da=String(d.getDate()).padStart(2,'0');
+    arr.push(y+'-'+mo+'-'+da+'T'+hhmm+':00');
+  }
+  return arr;
+}
+function updateRecPreview(){
+  const start = document.getElementById('b_rec_start').value;
+  const t = document.getElementById('b_time').value;
+  const freq = document.getElementById('b_rec_freq').value;
+  const el = document.getElementById('recPreview');
+  if(!start){ el.textContent = ''; return; }
+  const dates = computeRecurringDates(freq, start, t, 3);
+  el.textContent = '📅 ' + dates.map(d=>fmtDateShort(d)).join(' → ');
+}
+function toggleDateModeUI(){
+  document.getElementById('modeCalBtn').classList.toggle('active', dateMode==='calendar');
+  document.getElementById('modeRecBtn').classList.toggle('active', dateMode==='recurring');
+  document.getElementById('calendarSection').classList.toggle('hidden', dateMode!=='calendar');
+  document.getElementById('recurringSection').classList.toggle('hidden', dateMode!=='recurring');
+  document.getElementById('b_time').required = (dateMode==='calendar');
+  document.getElementById('timeLabel').textContent = dateMode==='calendar' ? 'Tid' : 'Tid (valgfrit)';
+  updateRecPreview();
+}
+
+/* ---------- Split logic ---------- */
+function computeSplitDetails(dorsalg, vask, price, partners, pct1, pct2, soloBonusPct){
+  const list = partners && partners.length ? partners : [dorsalg, vask].filter((v,i,a)=> v!=='Begge' && a.indexOf(v)===i);
+  const dBegge = dorsalg === 'Begge';
+  const vBegge = vask === 'Begge';
+  if(dBegge && vBegge){
+    const each = price / Math.max(list.length,1);
+    const shares = {}; list.forEach(p=> shares[p]=each);
+    return {type:'even', shares};
+  }
+  if(dBegge !== vBegge){
+    const soloPerson = dBegge ? vask : dorsalg;
+    const bonus = price * (soloBonusPct/100);
+    const remaining = price - bonus;
+    const each = remaining / Math.max(list.length,1);
+    const shares = {};
+    list.forEach(p=> shares[p] = (p===soloPerson ? each+bonus : each));
+    return {type:'bonus', soloPerson, shares};
+  }
+  if(dorsalg === vask){
+    const person = dorsalg;
+    const personShare = price * (pct1/100);
+    const shares = {}; shares[person] = personShare;
+    const others = partners.filter(p=>p!==person);
+    const remaining = price - personShare;
+    if(others.length>0){ const each = remaining/others.length; others.forEach(p=> shares[p]=each); }
+    return {type:'settings', shares};
+  }
+  const shares = {};
+  shares[dorsalg] = price/2;
+  shares[vask] = (shares[vask]||0) + price/2;
+  return {type:'50-50', shares};
+}
+function splitPrefix(type, b){
+  if(type==='even') return '🤝 Fordelt ligeligt: ';
+  if(type==='bonus') return '🎯 '+escapeHtml(b.soloBonusPerson||'')+' fik solo-bonus: ';
+  if(type==='settings') return '🧼 '+escapeHtml(b.vask)+' gjorde begge dele: ';
+  return '🤝 Fordelt 50/50: ';
+}
+function splitDisplayText(b){
+  if(!b.splitShares) return '';
+  const parts = Object.entries(b.splitShares).map(([n,kr])=> escapeHtml(n)+' får '+fmtKr(kr));
+  let prefix = b.employeeWashed ? escapeHtml(b.vask)+' (medarbejder) vaskede, ejerne deler: ' : splitPrefix(b.splitApplied, b);
+  return prefix + parts.join(' / ');
+}
+
+/* ---------- Booking form submit ---------- */
+function resetBookingForm(){
+  document.getElementById('b_navn').value=''; document.getElementById('b_tlf').value='';
+  document.getElementById('b_adresse').value=''; document.getElementById('b_email').value='';
+  document.getElementById('b_note').value=''; document.getElementById('b_pris').value='';
+  document.getElementById('b_rec_start').value=''; document.getElementById('b_time').value='';
+  selectedDorsalg = null; calSelectedDate = null; dateMode = 'calendar';
+  toggleDateModeUI(); renderDorsalgButtons(); renderBookingCalendar();
+  document.getElementById('calConfirmText').textContent='';
+  document.getElementById('recPreview').textContent='';
+}
+document.getElementById('bookBtn').addEventListener('click', async ()=>{
+  const navn = capitalizeWords(document.getElementById('b_navn').value.trim());
+  const tlf = document.getElementById('b_tlf').value.trim();
+  const adresse = capitalizeWords(document.getElementById('b_adresse').value.trim());
+  const email = document.getElementById('b_email').value.trim();
+  const note = document.getElementById('b_note').value.trim();
+  const pris = Number(document.getElementById('b_pris').value)||0;
+  const rf = settings.requiredFields;
+
+  if(!navn){ toast('Udfyld navn'); return; }
+  if(rf.tlf && !tlf){ toast('Udfyld telefon'); return; }
+  if(rf.adresse && !adresse){ toast('Udfyld adresse'); return; }
+  if(rf.email && !email){ toast('Udfyld email'); return; }
+  if(rf.pris && !pris){ toast('Udfyld en pris'); return; }
+  if(!selectedDorsalg){ toast('Vælg hvem der fik dørsalget'); return; }
+
+  const timeVal = document.getElementById('b_time').value;
+  let datesToCreate = []; let recIv = null; let noTime = false;
+
+  if(dateMode==='calendar'){
+    if(!calSelectedDate){ toast('Vælg en dato i kalenderen'); return; }
+    if(!timeVal){ toast('Vælg et tidspunkt'); return; }
+    datesToCreate = [calSelectedDate+'T'+timeVal+':00'];
+  } else {
+    const start = document.getElementById('b_rec_start').value;
+    if(!start){ toast('Vælg en startdato'); return; }
+    const freq = document.getElementById('b_rec_freq').value;
+    recIv = freq; noTime = !timeVal;
+    datesToCreate = computeRecurringDates(freq, start, timeVal, 3);
+  }
+
+  const recGrp = datesToCreate.length>1 ? ('grp'+Date.now()) : null;
+  datesToCreate.forEach(dt=>{
+    bookings.push({
+      id: Date.now()+Math.random(),
+      navn, tlf, adresse, email, note, pris,
+      dato: dt, noTime,
+      status: 'active',
+      dorsalg: selectedDorsalg, vask: null,
+      splitApplied: null, splitShares: null, employeeWashed: false,
+      assignedTo: null,
+      soldAt: null, cancelledAt: null, cancelReason: '',
+      recIv, recGrp
+    });
+  });
+  await saveBookings();
+  toast(datesToCreate.length>1 ? datesToCreate.length+' bookinger oprettet' : 'Booking oprettet');
+  resetBookingForm();
+  renderAllTabs();
+});
+
+/* ---------- Oversigt ---------- */
+function matchesOversigtSearch(b){
+  if(!searchQueryOversigt.trim()) return true;
+  const hay = [b.navn,b.adresse,b.tlf,b.email].join(' ').toLowerCase();
+  return hay.includes(searchQueryOversigt.trim().toLowerCase());
+}
+function statusBadgeHtml(b){
+  if(b.status==='active'){ return isOverdue(b) ? '<span class="badge overdue">Forfalden</span>' : '<span class="badge active">Aktiv</span>'; }
+  if(b.status==='sold') return '<span class="badge sold">Solgt</span>';
+  return '<span class="badge cancelled">Aflyst</span>';
+}
+function initialsAvatar(name){
+  const initial = (name||'?').trim().charAt(0).toUpperCase() || '?';
+  return `<div class="avatar">${escapeHtml(initial)}</div>`;
+}
+function renderBookingCard(b){
+  let extra = '';
+  if(b.note){ extra += `<div class="note">${escapeHtml(b.note)}</div>`; }
+  if(b.status==='sold'){
+    extra += `<div class="splitinfo">Vask: ${escapeHtml(b.vask||'-')} · Dørsalg: ${escapeHtml(b.dorsalg||'-')}</div>`;
+    extra += `<div class="splitinfo">${splitDisplayText(b)}</div>`;
+    if(b.employeeWashed){ extra += `<div class="note">Husk at registrere løn til ${escapeHtml(b.vask)} under Udgifter</div>`; }
+  } else if(b.status==='cancelled'){
+    extra += `<div class="splitinfo">Dørsalg: ${escapeHtml(b.dorsalg||'-')}</div>`;
+    if(b.cancelReason){ extra += `<div class="note">Aflysningsårsag: ${escapeHtml(b.cancelReason)}</div>`; }
+  } else {
+    extra += `<div class="splitinfo">Dørsalg: ${escapeHtml(b.dorsalg||'-')}</div>`;
+  }
+  let assignRow = '';
+  if((settings.employees||[]).length>0 && b.status==='active'){
+    const opts = ['Ingen', ...settings.employees];
+    assignRow = '<div class="assignlabel">Tildelt medarbejder</div><div class="partnerbtns">' + opts.map(name=>{
+      const val = name==='Ingen' ? '' : name;
+      const isActive = (b.assignedTo||'') === val;
+      return `<button type="button" class="partnerbtn${isActive?' active':''}" data-assign="${b.id}" data-assignval="${escapeHtml(val)}">${escapeHtml(name)}</button>`;
+    }).join('') + '</div>';
+  }
+  let actions = '';
+  if(b.status==='active' && isOverdue(b)){
+    actions = `<div class="cardactions"><button class="qbtn solgt" data-solgt="${b.id}">Solgt</button><button class="qbtn aflyst" data-aflyst="${b.id}">Aflyst</button></div>`;
+  }
+  return `<div class="bcard">
+    <div class="bctop">
+      <div class="bctopleft">${initialsAvatar(b.navn)}<span class="bname">${escapeHtml(b.navn)}</span></div>
+      <span class="bprice">${fmtKr(b.pris)}</span>
+    </div>
+    <div class="bcstatus">${statusBadgeHtml(b)}<div class="btnrow"><button class="editbtn-solid" data-edit="${b.id}">Rediger</button><button class="delbtn-solid" data-del="${b.id}">Slet</button></div></div>
+    <div class="bcaddr">${escapeHtml(b.adresse)}</div>
+    ${b.tlf ? `<div class="bcsub">${escapeHtml(b.tlf)}${b.email?' · '+escapeHtml(b.email):''}</div>` : ''}
+    <div class="bcwhen">${fmtDateTime(b.dato, b.noTime)}</div>
+    ${extra}${assignRow}${actions}
+  </div>`;
+}
+function attachCardHandlers(container){
+  container.querySelectorAll('[data-del]').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const r = await showConfirm({message:'Slet denne booking permanent?'});
+      if(!r.confirmed) return;
+      const id = btn.getAttribute('data-del');
+      bookings = bookings.filter(x=>String(x.id)!==id);
+      await saveBookings(); renderAllTabs(); toast('Slettet');
+    });
+  });
+  container.querySelectorAll('[data-edit]').forEach(btn=>{
+    btn.addEventListener('click', ()=> openEditBookingModal(btn.getAttribute('data-edit')));
+  });
+  container.querySelectorAll('[data-aflyst]').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const r = await showConfirm({message:'Aflys denne booking?', withNote:true});
+      if(!r.confirmed) return;
+      const id = btn.getAttribute('data-aflyst');
+      bookings = bookings.map(x=> String(x.id)===id ? Object.assign({},x,{status:'cancelled', cancelledAt:new Date().toISOString(), cancelReason:r.note||''}) : x);
+      await saveBookings(); renderAllTabs(); toast('Aflyst');
+    });
+  });
+  container.querySelectorAll('[data-solgt]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{ resolvingId = btn.getAttribute('data-solgt'); openSolgtModal(resolvingId); });
+  });
+  container.querySelectorAll('[data-assign]').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const id = btn.getAttribute('data-assign');
+      const val = btn.getAttribute('data-assignval');
+      bookings = bookings.map(x=> String(x.id)===id ? Object.assign({},x,{assignedTo: val||null}) : x);
+      await saveBookings(); renderAllTabs();
+      toast(val ? 'Tildelt '+val : 'Tildeling fjernet');
+    });
+  });
+}
+function renderOversigt(){
+  const active = bookings.filter(b=>b.status==='active' && matchesOversigtSearch(b)).sort((a,b)=> new Date(a.dato)-new Date(b.dato));
+  const sold = bookings.filter(b=>b.status==='sold' && matchesOversigtSearch(b)).sort((a,b)=> new Date(b.soldAt||b.dato)-new Date(a.soldAt||a.dato));
+  const cancelled = bookings.filter(b=>b.status==='cancelled' && matchesOversigtSearch(b)).sort((a,b)=> new Date(b.cancelledAt||b.dato)-new Date(a.cancelledAt||a.dato));
+  const all = [...active, ...sold, ...cancelled];
+  const listEl = document.getElementById('oversigtList');
+  if(all.length===0){ listEl.innerHTML = '<div class="empty">Ingen bookinger endnu.</div>'; return; }
+  listEl.innerHTML = all.map(renderBookingCard).join('');
+  attachCardHandlers(listEl);
+}
+
+/* ---------- Edit booking modal ---------- */
+function openEditBookingModal(id){
+  const b = bookings.find(x=>String(x.id)===String(id));
+  if(!b) return;
+  editingBookingId = id;
+  document.getElementById('edit_navn').value = b.navn||'';
+  document.getElementById('edit_tlf').value = b.tlf||'';
+  document.getElementById('edit_adresse').value = b.adresse||'';
+  document.getElementById('edit_email').value = b.email||'';
+  document.getElementById('edit_note').value = b.note||'';
+  document.getElementById('edit_pris').value = b.pris||'';
+  document.getElementById('editBookingOverlay').classList.remove('hidden');
+}
+document.getElementById('editBookingCancelBtn').addEventListener('click', ()=>{
+  document.getElementById('editBookingOverlay').classList.add('hidden');
+  editingBookingId = null;
+});
+document.getElementById('editBookingSaveBtn').addEventListener('click', async ()=>{
+  const navn = capitalizeWords(document.getElementById('edit_navn').value.trim());
+  if(!navn){ toast('Navn må ikke være tomt'); return; }
+  const tlf = document.getElementById('edit_tlf').value.trim();
+  const adresse = capitalizeWords(document.getElementById('edit_adresse').value.trim());
+  const email = document.getElementById('edit_email').value.trim();
+  const note = document.getElementById('edit_note').value.trim();
+  const pris = Number(document.getElementById('edit_pris').value)||0;
+  bookings = bookings.map(x=> String(x.id)===String(editingBookingId) ? Object.assign({}, x, {navn,tlf,adresse,email,note,pris}) : x);
+  await saveBookings();
+  document.getElementById('editBookingOverlay').classList.add('hidden');
+  editingBookingId = null;
+  renderAllTabs();
+  toast('Booking opdateret');
+});
+
+/* ---------- Solgt modal ---------- */
+function buildDorsalgOnlyButtons(containerId, selectedVal, onSelect){
+  const wrap = document.getElementById(containerId);
+  let html = '';
+  settings.partners.forEach(p=>{
+    html += `<button type="button" class="partnerbtn${selectedVal===p?' active':''}" data-p="${escapeHtml(p)}">${escapeHtml(p)}</button>`;
+  });
+  html += `<button type="button" class="partnerbtn${selectedVal==='Begge'?' active':''}" data-p="Begge">Begge</button>`;
+  wrap.innerHTML = html;
+  wrap.querySelectorAll('button').forEach(b=>{
+    b.addEventListener('click', ()=>{ onSelect(b.getAttribute('data-p')); renderModalPartnerButtons(); updateSplitPreview(); });
+  });
+}
+function buildVaskButtons(containerId, selectedVal, onSelect){
+  const wrap = document.getElementById(containerId);
+  let html = '';
+  settings.partners.forEach(p=>{
+    html += `<button type="button" class="partnerbtn${selectedVal===p?' active':''}" data-p="${escapeHtml(p)}">${escapeHtml(p)}</button>`;
+  });
+  (settings.employees||[]).forEach(p=>{
+    html += `<button type="button" class="partnerbtn employee${selectedVal===p?' active':''}" data-p="${escapeHtml(p)}">${escapeHtml(p)}</button>`;
+  });
+  html += `<button type="button" class="partnerbtn${selectedVal==='Begge'?' active':''}" data-p="Begge">Begge</button>`;
+  wrap.innerHTML = html;
+  wrap.querySelectorAll('button').forEach(b=>{
+    b.addEventListener('click', ()=>{ onSelect(b.getAttribute('data-p')); renderModalPartnerButtons(); updateSplitPreview(); });
+  });
+}
+function renderModalPartnerButtons(){
+  buildDorsalgOnlyButtons('modalDorsalgButtons', modalDorsalg, (v)=>{ modalDorsalg=v; });
+  buildVaskButtons('modalVaskButtons', modalVask, (v)=>{ modalVask=v; });
+}
+function updateSplitPreview(){
+  const el = document.getElementById('splitPreview');
+  const wageWrap = document.getElementById('employeeWageWrap');
+  if(!modalDorsalg || !modalVask){ el.textContent = 'Vælg begge for at se fordelingen.'; wageWrap.classList.add('hidden'); return; }
+  const b = bookings.find(x=>String(x.id)===String(resolvingId));
+  if(!b){ el.textContent=''; return; }
+  const isEmployeeVask = !settings.partners.includes(modalVask) && modalVask!=='Begge';
+  wageWrap.classList.toggle('hidden', !isEmployeeVask);
+  const effectiveVask = isEmployeeVask ? modalDorsalg : modalVask;
+  const details = computeSplitDetails(modalDorsalg, effectiveVask, b.pris, settings.partners, settings.splitPct1, settings.splitPct2, settings.soloBonusPct);
+  const parts = Object.entries(details.shares).map(([n,kr])=> escapeHtml(n)+' får '+fmtKr(kr));
+  let prefix;
+  if(isEmployeeVask){ prefix = escapeHtml(modalVask)+' (medarbejder) vasker for løn, ejerne deler resten: '; }
+  else { prefix = splitPrefix(details.type, {vask:modalVask, soloBonusPerson:details.soloPerson}); }
+  el.textContent = prefix + parts.join(' / ');
+}
+function openSolgtModal(id){
+  const b = bookings.find(x=>String(x.id)===String(id));
+  if(!b) return;
+  modalDorsalg = b.dorsalg || null;
+  modalVask = null;
+  document.getElementById('employeeWageInput').value = '';
+  renderModalPartnerButtons();
+  updateSplitPreview();
+  document.getElementById('solgtOverlay').classList.remove('hidden');
+}
+function closeSolgtModal(){
+  document.getElementById('solgtOverlay').classList.add('hidden');
+  resolvingId = null;
+}
+document.getElementById('solgtCancelBtn').addEventListener('click', closeSolgtModal);
+document.getElementById('solgtConfirmBtn').addEventListener('click', async ()=>{
+  if(!modalDorsalg || !modalVask){ toast('Vælg begge felter'); return; }
+  const b = bookings.find(x=>String(x.id)===String(resolvingId));
+  if(!b) return;
+  const isEmployeeVask = !settings.partners.includes(modalVask) && modalVask!=='Begge';
+  const effectiveVask = isEmployeeVask ? modalDorsalg : modalVask;
+  const details = computeSplitDetails(modalDorsalg, effectiveVask, b.pris, settings.partners, settings.splitPct1, settings.splitPct2, settings.soloBonusPct);
+  bookings = bookings.map(x=> String(x.id)===String(resolvingId) ? Object.assign({}, x, {
+    status:'sold', dorsalg:modalDorsalg, vask:modalVask, splitApplied:details.type,
+    splitShares:details.shares, soloBonusPerson:details.soloPerson||null,
+    employeeWashed:isEmployeeVask, soldAt:new Date().toISOString()
+  }) : x);
+  if(isEmployeeVask){
+    const wage = Number(document.getElementById('employeeWageInput').value)||0;
+    if(wage>0){
+      expenses.push({id:Date.now()+Math.random(), description:'Løn til '+modalVask+' – '+b.navn, amount:wage, date:new Date().toISOString().slice(0,10), type:'løn', employeeName:modalVask});
+      await saveExpenses();
+    }
+  }
+  await saveBookings();
+  closeSolgtModal();
+  renderAllTabs();
+  toast(isEmployeeVask ? 'Solgt — løn registreret' : 'Markeret som solgt');
+});
+
+/* ---------- Statistik ---------- */
+function renderStatCards(){
+  const sold = bookings.filter(b=>b.status==='sold');
+  const cancelled = bookings.filter(b=>b.status==='cancelled');
+  const activeNotOverdue = bookings.filter(b=>b.status==='active' && !isOverdue(b));
+  const indtjening = sold.reduce((s,x)=>s+Number(x.pris||0),0);
+  const udgifter = expenses.reduce((s,x)=>s+Number(x.amount||0),0);
+  const netto = indtjening - udgifter;
+  document.getElementById('statCards').innerHTML = `
+    <div class="statcard green"><div class="statnum">${fmtKr(indtjening)}</div><div class="statlabel">Indtjening</div></div>
+    <div class="statcard red"><div class="statnum">${fmtKr(udgifter)}</div><div class="statlabel">Udgifter</div></div>
+    <div class="statcard blue wide"><div class="statnum">${fmtKr(netto)}</div><div class="statlabel">Nettoindtjening</div></div>
+    <div class="statcard"><div class="statnum">${sold.length}</div><div class="statlabel">Solgt</div></div>
+    <div class="statcard"><div class="statnum">${cancelled.length}</div><div class="statlabel">Aflyst</div></div>
+    <div class="statcard"><div class="statnum">${activeNotOverdue.length}</div><div class="statlabel">Aktive</div></div>
+  `;
+}
+function populateEmployeeSelect(){
+  const sel = document.getElementById('exp_employee_select');
+  sel.innerHTML = (settings.employees||[]).map(n=>`<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join('');
+}
+function renderExpensesSummary(){
+  const total = expenses.reduce((s,x)=>s+Number(x.amount||0),0);
+  document.getElementById('expensesSummaryText').textContent = expenses.length+' udgifter · '+fmtKr(total)+' i alt';
+}
+function renderAllExpensesModal(){
+  const el = document.getElementById('allExpensesList');
+  if(expenses.length===0){ el.innerHTML = '<div class="empty">Ingen udgifter endnu.</div>'; return; }
+  const sorted = [...expenses].sort((a,b)=> a.id-b.id);
+  el.innerHTML = sorted.map(x=> `
+    <div class="expense-row" data-editrow="${x.id}">
+      <div>
+        <div class="expense-desc">${escapeHtml(x.description)}${x.type==='løn' ? ' <span style="color:var(--blue);font-weight:600;">(løn)</span>' : ''}</div>
+        <div class="expense-date">${x.date ? fmtDateShort(x.date+'T00:00:00') : ''}</div>
+      </div>
+      <div class="expense-right">
+        <span class="expense-amount">${fmtKr(x.amount)}</span>
+        <button class="delbtn-solid" data-delexp="${x.id}">Slet</button>
+      </div>
+    </div>`).join('');
+  el.querySelectorAll('[data-editrow]').forEach(row=>{
+    row.addEventListener('click', (e)=>{
+      if(e.target.closest('[data-delexp]')) return;
+      const id = row.getAttribute('data-editrow');
+      startEditExpense(id);
+    });
+  });
+  el.querySelectorAll('[data-delexp]').forEach(btn=>{
+    btn.addEventListener('click', async (e)=>{
+      e.stopPropagation();
+      const r = await showConfirm({message:'Slet denne udgift?'});
+      if(!r.confirmed) return;
+      const id = btn.getAttribute('data-delexp');
+      expenses = expenses.filter(x=>String(x.id)!==id);
+      await saveExpenses();
+      renderAllTabs();
+      renderAllExpensesModal();
+    });
+  });
+}
+function startEditExpense(id){
+  const x = expenses.find(e=>String(e.id)===String(id));
+  if(!x) return;
+  editingExpenseId = id;
+  document.getElementById('exp_desc').value = x.description;
+  document.getElementById('exp_amount').value = x.amount;
+  document.getElementById('exp_date').value = x.date||'';
+  document.getElementById('exp_is_wage').checked = x.type==='løn';
+  document.getElementById('exp_employee_wrap').classList.toggle('hidden', x.type!=='løn');
+  if(x.type==='løn'){ document.getElementById('exp_employee_select').value = x.employeeName||''; }
+  document.getElementById('addExpenseBtn').textContent = 'Gem ændring';
+  document.getElementById('cancelEditExpenseBtn').classList.remove('hidden');
+  document.getElementById('expensesOverlay').classList.add('hidden');
+  switchTab('statistik');
+}
+document.getElementById('cancelEditExpenseBtn').addEventListener('click', ()=>{
+  editingExpenseId = null;
+  document.getElementById('exp_desc').value=''; document.getElementById('exp_amount').value=''; document.getElementById('exp_date').value='';
+  document.getElementById('exp_is_wage').checked=false; document.getElementById('exp_employee_wrap').classList.add('hidden');
+  document.getElementById('addExpenseBtn').textContent = 'Tilføj udgift';
+  document.getElementById('cancelEditExpenseBtn').classList.add('hidden');
+});
+document.getElementById('exp_is_wage').addEventListener('change', function(){
+  populateEmployeeSelect();
+  document.getElementById('exp_employee_wrap').classList.toggle('hidden', !this.checked);
+});
+document.getElementById('expensesSummaryBtn').addEventListener('click', ()=>{
+  renderAllExpensesModal();
+  document.getElementById('expensesOverlay').classList.remove('hidden');
+});
+document.getElementById('closeExpensesBtn').addEventListener('click', ()=> document.getElementById('expensesOverlay').classList.add('hidden'));
+document.getElementById('addExpenseBtn').addEventListener('click', async ()=>{
+  const desc = document.getElementById('exp_desc').value.trim();
+  const amount = Number(document.getElementById('exp_amount').value)||0;
+  const date = document.getElementById('exp_date').value || new Date().toISOString().slice(0,10);
+  const isWage = document.getElementById('exp_is_wage').checked;
+  const empName = isWage ? document.getElementById('exp_employee_select').value : null;
+  if(!desc || !amount){ toast('Udfyld beskrivelse og beløb'); return; }
+  if(editingExpenseId){
+    expenses = expenses.map(x=> String(x.id)===String(editingExpenseId) ? Object.assign({}, x, {description:desc, amount, date, type: isWage?'løn':'general', employeeName: empName}) : x);
+    editingExpenseId = null;
+    document.getElementById('addExpenseBtn').textContent = 'Tilføj udgift';
+    document.getElementById('cancelEditExpenseBtn').classList.add('hidden');
+    toast('Udgift opdateret');
+  } else {
+    expenses.push({id:Date.now()+Math.random(), description:desc, amount, date, type: isWage?'løn':'general', employeeName: empName});
+    toast('Udgift tilføjet');
+  }
+  document.getElementById('exp_desc').value=''; document.getElementById('exp_amount').value=''; document.getElementById('exp_date').value='';
+  document.getElementById('exp_is_wage').checked=false; document.getElementById('exp_employee_wrap').classList.add('hidden');
+  await saveExpenses();
+  renderAllTabs();
+});
+
+function renderBestOmråde(){
+  const mode = document.getElementById('områdeMode').value;
+  const map = {};
+  bookings.filter(b=>b.status==='sold').forEach(b=>{
+    const key = extractStreetName(b.adresse);
+    if(!map[key]) map[key] = {count:0, revenue:0};
+    map[key].count++; map[key].revenue += Number(b.pris||0);
+  });
+  const arr = Object.entries(map).map(([k,v])=>({navn:k, ...v}));
+  arr.sort((a,b)=> mode==='kunder' ? b.count-a.count : b.revenue-a.revenue);
+  const top3 = arr.slice(0,3);
+  const el = document.getElementById('områdeList');
+  if(top3.length===0){ el.innerHTML = '<div class="empty">Ingen solgte bookinger endnu.</div>'; return; }
+  el.innerHTML = top3.map((a,i)=> `${i+1}. ${escapeHtml(a.navn)} — ${a.count} kunder · ${fmtKr(a.revenue)}`).join('<br>');
+}
+
+function getPeriodDates(period){
+  const now = new Date();
+  let start;
+  if(period==='week'){ start = new Date(now); start.setDate(now.getDate()-6); }
+  else if(period==='month'){ start = new Date(now.getFullYear(), now.getMonth(), 1); }
+  else if(period==='year'){ start = new Date(now.getFullYear(), 0, 1); }
+  else {
+    const sold = bookings.filter(b=>b.status==='sold');
+    if(sold.length===0) return {start: now, end: now};
+    start = sold.reduce((min,b)=> new Date(b.dato) < min ? new Date(b.dato) : min, new Date(sold[0].dato));
+  }
+  return {start, end: now};
+}
+function buildDailyData(period){
+  const {start, end} = getPeriodDates(period);
+  const days = [];
+  let cur = new Date(start); cur.setHours(0,0,0,0);
+  const endD = new Date(end); endD.setHours(0,0,0,0);
+  let guard = 0;
+  while(cur <= endD && guard < 400){
+    const key = cur.getFullYear()+'-'+String(cur.getMonth()+1).padStart(2,'0')+'-'+String(cur.getDate()).padStart(2,'0');
+    const dayBookings = bookings.filter(b=> b.status==='sold' && b.dato.slice(0,10)===key);
+    const total = dayBookings.reduce((s,x)=>s+Number(x.pris||0),0);
+    days.push({date:key, total, bookings:dayBookings});
+    cur.setDate(cur.getDate()+1); guard++;
+  }
+  return days;
+}
+function renderChart(){
+  const canvas = document.getElementById('earningsCanvas');
+  if(!canvas || document.getElementById('view_statistik').classList.contains('hidden')) { /* still allow draw, canvas may be 0 width if hidden but harmless */ }
+  const period = document.getElementById('chartPeriod').value;
+  chartDayData = buildDailyData(period);
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width = canvas.clientWidth || 320;
+  const h = canvas.height = 200;
+  ctx.clearRect(0,0,w,h);
+  const colors = themeColors();
+
+  const totalJobs = chartDayData.reduce((s,d)=> s + d.bookings.length, 0);
+  const totalRevenue = chartDayData.reduce((s,d)=> s + d.total, 0);
+  const avgPrice = totalJobs>0 ? totalRevenue/totalJobs : 0;
+  document.getElementById('chartSummary').innerHTML = `<strong>${totalJobs}</strong> solgt denne periode · gennemsnit <strong>${fmtKr(avgPrice)}</strong> pr. job`;
+  if(chartDayData.length===0) return;
+
+  const maxVal = Math.max(...chartDayData.map(d=>d.total), 1);
+  const avg = chartDayData.reduce((s,d)=>s+d.total,0)/chartDayData.length;
+  const padding = 10;
+  const barW = (w-2*padding)/chartDayData.length;
+
+  ctx.beginPath();
+  chartDayData.forEach((d,i)=>{
+    const x = padding + i*barW + barW/2;
+    const y = h - padding - (d.total/maxVal)*(h-2*padding);
+    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  });
+  ctx.lineTo(padding+(chartDayData.length-1)*barW+barW/2, h-padding);
+  ctx.lineTo(padding+barW/2, h-padding);
+  ctx.closePath();
+  ctx.fillStyle = colors.fill;
+  ctx.fill();
+
+  chartDayData.forEach((d,i)=>{
+    const x = padding + i*barW;
+    const barHeight = (d.total/maxVal)*(h-2*padding);
+    const y = h - padding - barHeight;
+    ctx.fillStyle = d.total >= avg ? colors.green : colors.red;
+    ctx.fillRect(x+barW*0.15, y, Math.max(barW*0.7,1), barHeight);
+  });
+
+  const avgY = h - padding - (avg/maxVal)*(h-2*padding);
+  ctx.setLineDash([5,4]);
+  ctx.strokeStyle = colors.orange;
+  ctx.beginPath(); ctx.moveTo(padding, avgY); ctx.lineTo(w-padding, avgY); ctx.stroke();
+  ctx.setLineDash([]);
+}
+document.getElementById('chartPeriod').addEventListener('change', renderChart);
+document.getElementById('områdeMode').addEventListener('change', renderBestOmråde);
+
+/* ---------- Kundehistorik ---------- */
+function renderKundehistorik(){
+  const q = searchQueryHistorik.trim().toLowerCase();
+  const el = document.getElementById('historikResults');
+  if(!q){ el.innerHTML = ''; return; }
+  const matches = bookings.filter(b=> [b.navn,b.adresse,b.tlf,b.email, fmtDateShort(b.dato), b.dato.slice(0,10)].join(' ').toLowerCase().includes(q))
+    .sort((a,b)=> new Date(b.dato)-new Date(a.dato));
+  if(matches.length===0){ el.innerHTML = '<div class="empty">Ingen match.</div>'; return; }
+  el.innerHTML = matches.map(renderBookingCard).join('');
+  attachCardHandlers(el);
+}
+
+/* ---------- Indstillinger ---------- */
+function renderPartnersList(){
+  const el = document.getElementById('partnersList');
+  el.innerHTML = settings.partners.map((p,i)=>
+    `<div class="partner-row"><input type="text" class="partner-input" data-idx="${i}" value="${escapeHtml(p)}"><button class="delbtn-solid" data-delpartner="${i}">Slet</button></div>`
+  ).join('');
+  el.querySelectorAll('.partner-input').forEach(inp=>{
+    inp.addEventListener('change', async function(){
+      const idx = Number(this.getAttribute('data-idx'));
+      settings.partners[idx] = this.value.trim() || settings.partners[idx];
+      await saveSettings(); renderDorsalgButtons(); toast('Opdateret');
+    });
+  });
+  el.querySelectorAll('[data-delpartner]').forEach(btn=>{
+    btn.addEventListener('click', async function(){
+      const idx = Number(this.getAttribute('data-delpartner'));
+      const r = await showConfirm({message:'Slet denne partner?'});
+      if(!r.confirmed) return;
+      settings.partners.splice(idx,1);
+      await saveSettings(); renderPartnersList(); renderDorsalgButtons(); toast('Partner slettet');
+    });
+  });
+}
+function renderEmployeesList(){
+  const el = document.getElementById('employeesList');
+  const emps = settings.employees || [];
+  if(emps.length===0){ el.innerHTML = '<div class="empty">Ingen medarbejdere endnu.</div>'; return; }
+  el.innerHTML = emps.map((p,i)=>
+    `<div class="partner-row"><input type="text" class="employee-input" data-idx="${i}" value="${escapeHtml(p)}"><button class="delbtn-solid" data-delemp="${i}">Slet</button></div>`
+  ).join('');
+  el.querySelectorAll('.employee-input').forEach(inp=>{
+    inp.addEventListener('change', async function(){
+      const idx = Number(this.getAttribute('data-idx'));
+      settings.employees[idx] = this.value.trim() || settings.employees[idx];
+      await saveSettings(); toast('Opdateret');
+    });
+  });
+  el.querySelectorAll('[data-delemp]').forEach(btn=>{
+    btn.addEventListener('click', async function(){
+      const idx = Number(this.getAttribute('data-delemp'));
+      const r = await showConfirm({message:'Slet denne medarbejder?'});
+      if(!r.confirmed) return;
+      settings.employees.splice(idx,1);
+      await saveSettings(); renderEmployeesList(); toast('Medarbejder slettet');
+    });
+  });
+}
+document.getElementById('addPartnerBtn').addEventListener('click', async ()=>{
+  const inp = document.getElementById('newPartnerInput'); const val = inp.value.trim(); if(!val) return;
+  settings.partners.push(val); inp.value=''; await saveSettings(); renderPartnersList(); renderDorsalgButtons();
+});
+document.getElementById('addEmployeeBtn').addEventListener('click', async ()=>{
+  const inp = document.getElementById('newEmployeeInput'); const val = inp.value.trim(); if(!val) return;
+  if(!settings.employees) settings.employees=[];
+  settings.employees.push(val); inp.value=''; await saveSettings(); renderEmployeesList();
+});
+document.getElementById('splitPct1Input').addEventListener('change', async function(){
+  let v = Math.max(0, Math.min(100, Number(this.value)||0));
+  settings.splitPct1=v; settings.splitPct2=100-v;
+  document.getElementById('splitPct2Input').value = settings.splitPct2;
+  await saveSettings(); toast('Split opdateret');
+});
+document.getElementById('splitPct2Input').addEventListener('change', async function(){
+  let v = Math.max(0, Math.min(100, Number(this.value)||0));
+  settings.splitPct2=v; settings.splitPct1=100-v;
+  document.getElementById('splitPct1Input').value = settings.splitPct1;
+  await saveSettings(); toast('Split opdateret');
+});
+document.getElementById('soloBonusInput').addEventListener('change', async function(){
+  settings.soloBonusPct = Math.max(0, Math.min(100, Number(this.value)||0));
+  await saveSettings(); toast('Bonus opdateret');
+});
+document.getElementById('businessNameInput').addEventListener('change', async function(){
+  settings.businessName = this.value.trim();
+  await saveSettings();
+  document.getElementById('ownerTitle').textContent = appDisplayName();
+  toast('Navn opdateret');
+});
+document.getElementById('futurePlansInput').addEventListener('change', async function(){
+  settings.futurePlans = this.value; await saveSettings(); toast('Gemt');
+});
+document.getElementById('ownerPinInput').addEventListener('change', async function(){
+  settings.ownerPin = this.value.trim() || '1234'; await saveSettings(); toast('PIN opdateret');
+});
+['req_tlf','req_adresse','req_email','req_pris'].forEach(id=>{
+  document.getElementById(id).addEventListener('change', async function(){
+    const key = id.replace('req_','');
+    settings.requiredFields[key] = this.checked;
+    await saveSettings(); updateFieldLabels(); toast('Opdateret');
+  });
+});
+['qp1','qp2','qp3'].forEach((id)=>{
+  document.getElementById(id).addEventListener('change', async ()=>{
+    settings.quickPrices = ['qp1','qp2','qp3'].map(i=>Number(document.getElementById(i).value)||0);
+    await saveSettings(); renderQuickPriceChips();
+  });
+});
+document.getElementById('backupBtn').addEventListener('click', ()=>{
+  const data = JSON.stringify({bookings, expenses, partners:settings.partners, employees:settings.employees, splitPct1:settings.splitPct1, splitPct2:settings.splitPct2, soloBonusPct:settings.soloBonusPct, businessName:settings.businessName, futurePlans:settings.futurePlans, requiredFields:settings.requiredFields, quickPrices:settings.quickPrices}, null, 2);
+  const blob = new Blob([data], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'ruten-backup-'+new Date().toISOString().slice(0,10)+'.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+document.getElementById('restoreInput').addEventListener('change', function(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  showConfirm({message:'Dette overskriver alt nuværende data. Fortsæt?'}).then(r=>{
+    if(!r.confirmed){ e.target.value=''; return; }
+    const reader = new FileReader();
+    reader.onload = async function(ev){
+      try{
+        const parsed = JSON.parse(ev.target.result);
+        bookings = parsed.bookings || [];
+        expenses = parsed.expenses || [];
+        settings.partners = parsed.partners || settings.partners;
+        settings.employees = parsed.employees || settings.employees || [];
+        settings.splitPct1 = parsed.splitPct1!=null ? parsed.splitPct1 : settings.splitPct1;
+        settings.splitPct2 = parsed.splitPct2!=null ? parsed.splitPct2 : settings.splitPct2;
+        settings.soloBonusPct = parsed.soloBonusPct!=null ? parsed.soloBonusPct : settings.soloBonusPct;
+        settings.businessName = parsed.businessName!=null ? parsed.businessName : settings.businessName;
+        settings.futurePlans = parsed.futurePlans!=null ? parsed.futurePlans : settings.futurePlans;
+        settings.requiredFields = parsed.requiredFields || settings.requiredFields;
+        settings.quickPrices = parsed.quickPrices || settings.quickPrices;
+        await saveBookings(); await saveSettings(); await saveExpenses();
+        renderAllTabs();
+        toast('Gendannet fra backup');
+      }catch(err){ toast('Ugyldig fil'); }
+      e.target.value = '';
+    };
+    reader.readAsText(file);
+  });
+});
+
+/* ---------- Employee app ---------- */
+function renderEmployeeApp(){
+  renderEmpSchedule();
+  renderEmpEarnings();
+}
+function renderEmpSchedule(){
+  const mine = bookings.filter(b=> b.status==='active' && b.assignedTo===currentEmployeeName).sort((a,b)=> new Date(a.dato)-new Date(b.dato));
+  const el = document.getElementById('empScheduleList');
+  if(mine.length===0){ el.innerHTML = '<div class="empty">Ingen opgaver tildelt endnu.</div>'; return; }
+  el.innerHTML = mine.map(b=> `
+    <div class="bcard">
+      <div class="bctop"><div class="bctopleft">${initialsAvatar(b.navn)}<span class="bname">${escapeHtml(b.navn)}</span></div></div>
+      <div class="bcaddr">${escapeHtml(b.adresse)}</div>
+      ${b.tlf ? `<div class="bcsub">${escapeHtml(b.tlf)}${b.email?' · '+escapeHtml(b.email):''}</div>` : ''}
+      <div class="bcwhen">${fmtDateTime(b.dato, b.noTime)}</div>
+      ${b.note ? `<div class="note">${escapeHtml(b.note)}</div>` : ''}
+    </div>`).join('');
+}
+function renderEmpEarnings(){
+  const mine = expenses.filter(x=> x.type==='løn' && x.employeeName===currentEmployeeName).sort((a,b)=> (b.date||'').localeCompare(a.date||''));
+  const total = mine.reduce((s,x)=>s+Number(x.amount||0),0);
+  document.getElementById('empEarningsTotal').textContent = fmtKr(total);
+  const el = document.getElementById('empEarningsList');
+  if(mine.length===0){ el.innerHTML = '<div class="empty">Ingen løn registreret endnu.</div>'; return; }
+  el.innerHTML = mine.map(x=> `
+    <div class="expense-row">
+      <div><div class="expense-desc">${x.date ? fmtDateShort(x.date+'T00:00:00') : ''}</div></div>
+      <span class="expense-amount" style="color:var(--green);">${fmtKr(x.amount)}</span>
+    </div>`).join('');
+}
+document.getElementById('emp_tab_schedule').addEventListener('click', ()=>{
+  document.getElementById('emp_tab_schedule').classList.add('active');
+  document.getElementById('emp_tab_earnings').classList.remove('active');
+  document.getElementById('emp_view_schedule').classList.remove('hidden');
+  document.getElementById('emp_view_earnings').classList.add('hidden');
+});
+document.getElementById('emp_tab_earnings').addEventListener('click', ()=>{
+  document.getElementById('emp_tab_earnings').classList.add('active');
+  document.getElementById('emp_tab_schedule').classList.remove('active');
+  document.getElementById('emp_view_earnings').classList.remove('hidden');
+  document.getElementById('emp_view_schedule').classList.add('hidden');
+});
+
+/* ---------- Tabs & search wiring (owner app) ---------- */
+function switchTab(name){
+  ['booking','oversigt','statistik','indstillinger'].forEach(t=>{
+    document.getElementById('tab_'+t).classList.toggle('active', t===name);
+    document.getElementById('view_'+t).classList.toggle('hidden', t!==name);
+  });
+  if(name==='statistik'){ renderChart(); }
+}
+document.getElementById('tab_booking').addEventListener('click', ()=>switchTab('booking'));
+document.getElementById('tab_oversigt').addEventListener('click', ()=>switchTab('oversigt'));
+document.getElementById('tab_statistik').addEventListener('click', ()=>switchTab('statistik'));
+document.getElementById('tab_indstillinger').addEventListener('click', ()=>switchTab('indstillinger'));
+
+document.getElementById('oversigtSearch').addEventListener('input', function(){ searchQueryOversigt = this.value; renderOversigt(); });
+document.getElementById('historikSearch').addEventListener('input', function(){ searchQueryHistorik = this.value; renderKundehistorik(); });
+
+document.getElementById('modeCalBtn').addEventListener('click', ()=>{ dateMode='calendar'; toggleDateModeUI(); });
+document.getElementById('modeRecBtn').addEventListener('click', ()=>{ dateMode='recurring'; toggleDateModeUI(); });
+document.getElementById('calPrev').addEventListener('click', ()=>{ calViewDate.setMonth(calViewDate.getMonth()-1); renderBookingCalendar(); });
+document.getElementById('calNext').addEventListener('click', ()=>{ calViewDate.setMonth(calViewDate.getMonth()+1); renderBookingCalendar(); });
+document.getElementById('b_rec_freq').addEventListener('change', updateRecPreview);
+document.getElementById('b_rec_start').addEventListener('change', updateRecPreview);
+document.getElementById('b_time').addEventListener('change', ()=>{ updateCalConfirm(); updateRecPreview(); });
+
+function renderAllTabs(){
+  updateFieldLabels();
+  renderQuickPriceChips();
+  renderDorsalgButtons();
+  renderOversigt();
+  renderStatCards();
+  renderExpensesSummary();
+  renderBestOmråde();
+  renderKundehistorik();
+  renderPartnersList();
+  renderEmployeesList();
+  populateEmployeeSelect();
+  document.getElementById('splitPct1Input').value = settings.splitPct1;
+  document.getElementById('splitPct2Input').value = settings.splitPct2;
+  document.getElementById('soloBonusInput').value = settings.soloBonusPct;
+  document.getElementById('businessNameInput').value = settings.businessName||'';
+  document.getElementById('futurePlansInput').value = settings.futurePlans||'';
+  document.getElementById('ownerPinInput').value = settings.ownerPin||'1234';
+  document.getElementById('req_tlf').checked = !!settings.requiredFields.tlf;
+  document.getElementById('req_adresse').checked = !!settings.requiredFields.adresse;
+  document.getElementById('req_email').checked = !!settings.requiredFields.email;
+  document.getElementById('req_pris').checked = !!settings.requiredFields.pris;
+  document.getElementById('qp1').value = (settings.quickPrices||[])[0]||'';
+  document.getElementById('qp2').value = (settings.quickPrices||[])[1]||'';
+  document.getElementById('qp3').value = (settings.quickPrices||[])[2]||'';
+}
+
+/* ---------- Init ---------- */
+renderBookingCalendar();
+toggleDateModeUI();
+loadData().then(()=>{ showGate(); });
+</script>
+
+</body>
+</html>
